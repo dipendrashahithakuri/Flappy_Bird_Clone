@@ -20,8 +20,14 @@ window.onload = function(){
     // bgpos.height = canvas.height;
 
     const env = new Environment(canvas,ctx);
-    const brd = new Bird(200,200,ctx);
-    // const pipes = [];
+    const bird = new Bird(200,200,ctx);
+    const pipes = [];
+
+    setInterval(function(){
+        let pipeSet = generateRandomPipes(ctx,canvas.width,canvas.height);
+        pipes.push(pipeSet.top , pipeSet.bottom);
+
+    },3000);
 
     gameLoop();
 
@@ -34,20 +40,56 @@ window.onload = function(){
         ctx.fillRect(0,0,canvas.height,canvas.width);
         env.update();
         env.render();
-        brd.update();
-        brd.render();
-        // pipe.update();
-        // pipe.render();
+              pipes.forEach(function(pipe1){
+            pipe1.update();
+            pipe1.render();
+        });
+
+        bird.update();
+        bird.render();
+        if(detectCollisions(bird,pipes)){
+            window.alert("You Lose!!");
+            // window.location = '/';
+        }
+        
         window.requestAnimationFrame(gameLoop);
     };
 
 
 };
 
-function generateRandomPipes(canvas,ctx,pipeStart){
-    let lengthTop = Math.round(Math.random()*200+100);
-    let lengthBottom = canvas.height- 180 - lengthTop;
+function generateRandomPipes(ctx,canvasWidth,canvasHeight){
+    let lengthTop = Math.round(Math.random()*400+50);
+    let lengthBottom = canvasHeight- 250 - lengthTop;
     let returnVal = {top: '', bottom:''};
-    returnVal.top = new Pipe(pipeStart,-5,lengthTop,3,ctx);
-    returnVal.bottom = new Pipe(pipeStart,canvas.height+5-lengthBottom,lengthBottom,3,ctx);
+    returnVal.top = new Pipe(canvasWidth , -5 , lengthTop , 4 , ctx);
+    returnVal.bottom = new Pipe(canvasWidth , canvasHeight + 5 - lengthBottom , lengthBottom , 4 , ctx);
+    return returnVal;
+};
+
+function detectCollisions(bird, pipes){
+
+    for(var i=0; i<pipes.length;i++){
+        let e=pipes[i];
+        let highPipe =e.posY <=0;
+        let x0 = e.posX;
+        let x1 = e.posX + e.width;
+        if(highPipe){
+            let y0 = e.posY + e.length;
+            let alpha = bird.x;
+            let beta = bird.y;
+            if(alpha >= x0 && alpha <= x1 && beta <= y0){
+
+                return true;
+            }
+        }
+        else{
+            let y1 = e.posY;
+            let a = bird.x;
+            let b = bird.y;
+            if(a >= x0 && a <= x1 && b >= y1) return true;
+        };
+    };
+
+    return false;
 };
