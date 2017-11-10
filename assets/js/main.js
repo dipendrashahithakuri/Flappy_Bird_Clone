@@ -27,7 +27,7 @@ window.onload = function(){
         let pipeSet = generateRandomPipes(ctx,canvas.width,canvas.height);
         pipes.push(pipeSet.top , pipeSet.bottom);
 
-    },3000);
+    },2600);
 
     gameLoop();
 
@@ -45,12 +45,13 @@ window.onload = function(){
             pipe1.render();
         });
 
-        bird.update();
+        bird.update(pipes);
         bird.render();
-        if(detectCollisions(bird,pipes)){
-            window.alert("You Lose!!");
-            // window.location = '/';
-        }
+
+        // if(detectCollisions(bird,pipes,canvas)){
+        //     window.alert("You Lose!!");
+        //     // window.location = '/';
+        // }
         
         window.requestAnimationFrame(gameLoop);
     };
@@ -60,36 +61,9 @@ window.onload = function(){
 
 function generateRandomPipes(ctx,canvasWidth,canvasHeight){
     let lengthTop = Math.round(Math.random()*400+50);
-    let lengthBottom = canvasHeight- 250 - lengthTop;
+    let lengthBottom = canvasHeight- 180 - lengthTop;
     let returnVal = {top: '', bottom:''};
     returnVal.top = new Pipe(canvasWidth , -5 , lengthTop , 4 , ctx);
     returnVal.bottom = new Pipe(canvasWidth , canvasHeight + 5 - lengthBottom , lengthBottom , 4 , ctx);
     return returnVal;
-};
-
-function detectCollisions(bird, pipes){
-
-    for(var i=0; i<pipes.length;i++){
-        let e=pipes[i];
-        let highPipe =e.posY <=0;
-        let x0 = e.posX;
-        let x1 = e.posX + e.width;
-        if(highPipe){
-            let y0 = e.posY + e.length;
-            let alpha = bird.x;
-            let beta = bird.y;
-            if(alpha >= x0 && alpha <= x1 && beta <= y0){
-
-                return true;
-            }
-        }
-        else{
-            let y1 = e.posY;
-            let a = bird.x;
-            let b = bird.y;
-            if(a >= x0 && a <= x1 && b >= y1) return true;
-        };
-    };
-
-    return false;
 };
